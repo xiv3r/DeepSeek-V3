@@ -23,7 +23,8 @@ def act_quant_kernel(x_ptr, y_ptr, s_ptr, BLOCK_SIZE: tl.constexpr, scale_fmt: t
     pid = tl.program_id(axis=0)
     offs = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
     x = tl.load(x_ptr + offs).to(tl.float32)
-    amax = tl.max(tl.abs(x), 1e-4)
+    amax = tl.max(tl.abs(x)) # reduction
+    amax = tl.maximum(amax, 1e-4) # clamp to 1e-4
     s = amax / 448.
     if scale_fmt == "ue8m0":
         exp = tl.math.ceil(tl.math.log2(s))
