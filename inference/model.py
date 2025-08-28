@@ -291,12 +291,7 @@ class RMSNorm(nn.Module):
         Returns:
             torch.Tensor: Normalized tensor with the same shape as input.
         """
-        dtype = x.dtype
-        # make sure rms norm is computed in fp32
-        x = x.to(torch.float32)
-        var = x.pow(2).mean(-1, keepdim=True)
-        x = x * torch.rsqrt(var + self.eps)
-        return (self.weight * x).to(dtype)
+        return F.rms_norm(x, (self.dim,), self.weight, self.eps)
 
 
 def precompute_freqs_cis(args: ModelArgs) -> torch.Tensor:
